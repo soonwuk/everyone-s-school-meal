@@ -38,6 +38,28 @@ const App = () => {
   const [loadingIngredient, setLoadingIngredient] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
 
+  // Theme State
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // Initialize Theme
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -309,34 +331,48 @@ const App = () => {
   const selectedItem = getSelectedItem();
 
   return (
-    <div className="min-h-screen py-8 px-4 flex flex-col items-center justify-center relative">
-      {/* Home Button / Header Navigation */}
-      <div className="absolute top-4 left-4 z-40">
+    <div className="min-h-screen py-8 px-4 flex flex-col items-center justify-center relative transition-colors duration-300">
+      {/* Top Controls */}
+      <div className="absolute top-4 left-4 z-40 flex gap-2">
         <button 
           onClick={goHome} 
-          className="bg-white p-3 rounded-full shadow-md text-amber-600 hover:bg-amber-50 hover:scale-110 transition-all border border-gray-100"
+          className="bg-white dark:bg-gray-800 p-3 rounded-full shadow-md text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-gray-700 hover:scale-110 transition-all border border-gray-100 dark:border-gray-700"
           title="홈으로 돌아가기"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
         </button>
       </div>
 
+      <div className="absolute top-4 right-4 z-40">
+        <button 
+          onClick={toggleTheme} 
+          className="bg-white dark:bg-gray-800 p-3 rounded-full shadow-md text-gray-600 dark:text-yellow-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-110 transition-all border border-gray-100 dark:border-gray-700"
+          title={theme === 'light' ? '다크 모드로 전환' : '라이트 모드로 전환'}
+        >
+          {theme === 'light' ? (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          ) : (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          )}
+        </button>
+      </div>
+
       <header className="mb-6 text-center w-full max-w-lg">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2 cursor-pointer" onClick={goHome}>🍱 모두의 급식</h1>
-        <p className="text-gray-600 mb-6">오늘의 학교 급식 메뉴와 칼로리 정보</p>
+        <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2 cursor-pointer transition-colors" onClick={goHome}>🍱 모두의 급식</h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-6 transition-colors">오늘의 학교 급식 메뉴와 칼로리 정보</p>
         
         {/* Only show input form if menu is not generated yet */}
         {!menu && (
-          <div className="bg-white p-6 rounded-2xl shadow-md space-y-4 animate-fade-in-up">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md space-y-4 animate-fade-in-up transition-colors">
             
             {/* School Selector */}
-            <div className="border-b border-gray-100 pb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2 text-left">학교 설정 (Open API)</label>
+            <div className="border-b border-gray-100 dark:border-gray-700 pb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 text-left">학교 설정 (Open API)</label>
               {selectedSchool ? (
-                <div className="flex items-center justify-between bg-amber-50 p-3 rounded-lg border border-amber-200">
+                <div className="flex items-center justify-between bg-amber-50 dark:bg-gray-700 p-3 rounded-lg border border-amber-200 dark:border-gray-600">
                   <div className="text-left">
-                    <div className="font-bold text-gray-800">{selectedSchool.SCHUL_NM}</div>
-                    <div className="text-xs text-gray-500">{selectedSchool.ORG_RDNMA}</div>
+                    <div className="font-bold text-gray-800 dark:text-white">{selectedSchool.SCHUL_NM}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-300">{selectedSchool.ORG_RDNMA}</div>
                   </div>
                   <button 
                     onClick={() => setSelectedSchool(null)}
@@ -348,7 +384,7 @@ const App = () => {
               ) : (
                 <button 
                   onClick={() => setIsSchoolModalOpen(true)}
-                  className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-amber-500 hover:text-amber-600 hover:bg-amber-50 transition-all flex items-center justify-center"
+                  className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 hover:border-amber-500 dark:hover:border-amber-500 hover:text-amber-600 dark:hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center"
                 >
                   <span className="mr-2">🏫</span> 학교 검색하여 등록하기
                 </button>
@@ -356,28 +392,28 @@ const App = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1 text-left">날짜 선택</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-left">날짜 선택</label>
               <input 
                 type="date" 
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
               />
             </div>
 
             {!selectedSchool && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 text-left">월간 식단표 이미지 (학교 미설정 시)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-left">월간 식단표 이미지 (학교 미설정 시)</label>
                 {!menuImage ? (
                   <div className="relative">
                     <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" id="menu-upload" />
-                    <label htmlFor="menu-upload" className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-amber-500 hover:bg-amber-50 text-gray-500">
+                    <label htmlFor="menu-upload" className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
                       <span className="mr-2">📷</span> 식단표 사진 업로드하기
                     </label>
                   </div>
                 ) : (
                   <div className="relative group">
-                    <img src={menuImage} alt="Uploaded Menu" className="w-full h-32 object-cover rounded-lg border border-gray-200" />
+                    <img src={menuImage} alt="Uploaded Menu" className="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
                     <button onClick={clearImage} className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
@@ -390,7 +426,7 @@ const App = () => {
               onClick={generateMenu}
               disabled={loading}
               className={`w-full font-bold py-3 px-8 rounded-xl shadow-md transition-all transform flex items-center justify-center
-                ${loading ? 'bg-gray-400 cursor-not-allowed text-gray-100' : 'bg-amber-500 hover:bg-amber-600 hover:scale-[1.02] text-white'}`}
+                ${loading ? 'bg-gray-400 cursor-not-allowed text-gray-100 dark:bg-gray-600' : 'bg-amber-500 hover:bg-amber-600 hover:scale-[1.02] text-white dark:bg-amber-600 dark:hover:bg-amber-700'}`}
             >
               {loading ? statusMessage : (
                 selectedSchool ? '학교 실제 급식 불러오기' : 
@@ -402,7 +438,7 @@ const App = () => {
       </header>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 w-full max-w-lg">
+        <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded relative mb-4 w-full max-w-lg">
           {error}
         </div>
       )}
@@ -411,18 +447,18 @@ const App = () => {
         <div className="w-full max-w-4xl animate-fade-in-up">
           <div className="flex justify-between items-end mb-4 px-2">
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">{menu.date}</h2>
-              {selectedSchool && <p className="text-sm text-gray-500">{selectedSchool.SCHUL_NM} 실제 식단</p>}
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{menu.date}</h2>
+              {selectedSchool && <p className="text-sm text-gray-500 dark:text-gray-400">{selectedSchool.SCHUL_NM} 실제 식단</p>}
             </div>
             <div className="text-right">
-              <span className="text-sm text-gray-500">총 칼로리</span>
-              <div className="text-xl font-bold text-amber-600">
+              <span className="text-sm text-gray-500 dark:text-gray-400">총 칼로리</span>
+              <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
                 {parseInt(menu.rice.calories || '0') + parseInt(menu.soup.calories || '0') + parseInt(menu.side1.calories || '0') + parseInt(menu.side2.calories || '0') + parseInt(menu.side3.calories || '0') + parseInt(menu.dessert.calories || '0')} kcal
               </div>
             </div>
           </div>
 
-          <div className="stainless-steel rounded-[3rem] p-4 shadow-2xl border-4 border-[#d0d0d0] relative">
+          <div className="stainless-steel rounded-[3rem] p-4 shadow-2xl border-4 border-[#d0d0d0] dark:border-[#4b5563] relative transition-all duration-300">
             <div className="flex flex-col gap-4 h-full">
               <div className="grid grid-cols-4 gap-4 h-[14.4rem] sm:h-[17.6rem]">
                 <TrayCompartment item={menu.side1} image={foodImages['side1']} loading={loadingImages['side1']} type="circle" onClick={() => openModal('side1', menu.side1)} />
@@ -435,7 +471,7 @@ const App = () => {
                 <TrayCompartment item={menu.soup} image={foodImages['soup']} loading={loadingImages['soup']} type="rect" onClick={() => openModal('soup', menu.soup)} />
               </div>
             </div>
-            <div className="absolute bottom-1 right-8 text-[10px] text-gray-400 font-mono tracking-widest opacity-50 pointer-events-none">STAINLESS STEEL 18-8</div>
+            <div className="absolute bottom-1 right-8 text-[10px] text-gray-400 dark:text-gray-500 font-mono tracking-widest opacity-50 pointer-events-none">STAINLESS STEEL 18-8</div>
           </div>
         </div>
       )}
@@ -454,45 +490,45 @@ const App = () => {
       {/* Detail Modal */}
       {selectedItemKey && selectedItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={closeModal}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
-            <div className="p-4 border-b border-gray-100 flex justify-between items-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh] transition-colors" onClick={e => e.stopPropagation()}>
+            <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
               <div>
-                <h3 className="text-xl font-bold text-gray-800">{selectedItem.name}</h3>
-                <p className="text-sm text-gray-500">{selectedItem.calories} kcal</p>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white">{selectedItem.name}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{selectedItem.calories} kcal</p>
               </div>
-              <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 p-2">
+              <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
               </button>
             </div>
-            <div className="relative bg-gray-100 aspect-square w-full">
+            <div className="relative bg-gray-100 dark:bg-gray-700 aspect-square w-full">
               {isIngredientMode ? (
                 loadingIngredient ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500 dark:text-gray-300">
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600 mb-2"></div>
                     재료 준비 중...
                   </div>
                 ) : ingredientImages[selectedItemKey] ? (
                   <img src={ingredientImages[selectedItemKey]} alt="Ingredients" className="w-full h-full object-cover" />
                 ) : (
-                   <div className="absolute inset-0 flex items-center justify-center text-gray-400">재료 이미지가 없습니다.</div>
+                   <div className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500">재료 이미지가 없습니다.</div>
                 )
               ) : (
                 loadingImages[selectedItemKey] ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500 dark:text-gray-300">
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600 mb-2"></div>
                     조리 중...
                   </div>
                 ) : foodImages[selectedItemKey] ? (
                   <img src={foodImages[selectedItemKey]} alt={selectedItem.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-400">이미지가 없습니다.</div>
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500">이미지가 없습니다.</div>
                 )
               )}
             </div>
-            <div className="flex border-b border-gray-100">
+            <div className="flex border-b border-gray-100 dark:border-gray-700">
               <button 
                 onClick={() => setIsIngredientMode(false)}
-                className={`flex-1 py-3 font-medium text-sm transition-colors ${!isIngredientMode ? 'text-amber-600 border-b-2 border-amber-600 bg-amber-50' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`flex-1 py-3 font-medium text-sm transition-colors ${!isIngredientMode ? 'text-amber-600 dark:text-amber-400 border-b-2 border-amber-600 dark:border-amber-400 bg-amber-50 dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
               >
                 완성된 음식
               </button>
@@ -503,25 +539,25 @@ const App = () => {
                     generateIngredients(selectedItemKey, selectedItem.name);
                   }
                 }}
-                className={`flex-1 py-3 font-medium text-sm transition-colors ${isIngredientMode ? 'text-amber-600 border-b-2 border-amber-600 bg-amber-50' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`flex-1 py-3 font-medium text-sm transition-colors ${isIngredientMode ? 'text-amber-600 dark:text-amber-400 border-b-2 border-amber-600 dark:border-amber-400 bg-amber-50 dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
               >
                 들어간 재료 보기
               </button>
             </div>
-            <div className="p-4 bg-gray-50">
-              <label className="block text-xs font-semibold text-gray-500 mb-2">이미지가 다른가요? 수정 검색해보세요.</label>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700">
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-300 mb-2">이미지가 다른가요? 수정 검색해보세요.</label>
               <div className="flex gap-2">
                 <input 
                   type="text" 
                   value={customPrompt} 
                   onChange={(e) => setCustomPrompt(e.target.value)}
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none"
+                  className="flex-1 border border-gray-300 dark:border-gray-500 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-white dark:bg-gray-600 text-gray-800 dark:text-white"
                   placeholder="예: 더 매워보이는 떡볶이"
                 />
                 <button 
                   onClick={handleRegenerate}
                   disabled={loadingImages[selectedItemKey]}
-                  className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 disabled:opacity-50 whitespace-nowrap"
+                  className="bg-gray-800 dark:bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 dark:hover:bg-black disabled:opacity-50 whitespace-nowrap"
                 >
                   수정 검색
                 </button>
@@ -554,7 +590,7 @@ const TrayCompartment = ({
     <div className="flex flex-col h-full group cursor-pointer" onClick={onClick}>
       <div 
         className={`
-          compartment-shadow bg-[#f0f0f0] overflow-hidden relative
+          compartment-shadow bg-[#f0f0f0] dark:bg-gray-800 overflow-hidden relative
           ${type === 'circle' ? 'rounded-3xl' : 'rounded-[2rem]'}
           flex-grow w-full h-full flex items-center justify-center transition-all duration-300
           hover:ring-4 hover:ring-amber-200/50 hover:shadow-lg
@@ -562,7 +598,7 @@ const TrayCompartment = ({
         `}
       >
         {loading ? (
-          <div className="flex flex-col items-center text-gray-300 animate-pulse">
+          <div className="flex flex-col items-center text-gray-300 dark:text-gray-600 animate-pulse">
             <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
             <span className="text-xs">조리중...</span>
           </div>
@@ -571,23 +607,23 @@ const TrayCompartment = ({
             <img 
               src={image} 
               alt={item.name} 
-              className="w-full h-full object-cover mix-blend-multiply opacity-90 transition-transform duration-700 ease-in-out group-hover:scale-110" 
+              className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal opacity-90 dark:opacity-100 transition-transform duration-700 ease-in-out group-hover:scale-110" 
             />
             {/* Soft inner edge shadow to hide harsh cuts, forced z-index to stay on top */}
-            <div className="absolute inset-0 shadow-[inset_0_0_15px_8px_#f0f0f0] pointer-events-none rounded-[inherit] z-10"></div>
+            <div className="absolute inset-0 shadow-[inset_0_0_15px_8px_#f0f0f0] dark:shadow-[inset_0_0_15px_8px_#1f2937] pointer-events-none rounded-[inherit] z-10"></div>
           </div>
         ) : (
-          <div className="text-gray-300 text-sm">이미지 없음</div>
+          <div className="text-gray-300 dark:text-gray-600 text-sm">이미지 없음</div>
         )}
         
         {/* Shine highlight */}
-        <div className="absolute inset-0 rounded-[inherit] ring-1 ring-white/40 pointer-events-none z-20"></div>
+        <div className="absolute inset-0 rounded-[inherit] ring-1 ring-white/40 dark:ring-white/10 pointer-events-none z-20"></div>
       </div>
       <div className="mt-2 text-center">
-        <h3 className={`font-medium text-gray-800 leading-tight ${type === 'circle' ? 'text-xs sm:text-sm' : 'text-sm sm:text-lg'} break-keep px-1 group-hover:text-amber-700`}>
+        <h3 className={`font-medium text-gray-800 dark:text-gray-200 leading-tight ${type === 'circle' ? 'text-xs sm:text-sm' : 'text-sm sm:text-lg'} break-keep px-1 group-hover:text-amber-700 dark:group-hover:text-amber-400`}>
           {isDessert && "🍦 "}{item.name}
         </h3>
-        <p className="text-xs text-amber-600 font-mono mt-0.5">{item.calories}</p>
+        <p className="text-xs text-amber-600 dark:text-amber-400 font-mono mt-0.5">{item.calories}</p>
       </div>
     </div>
   );
@@ -625,38 +661,38 @@ const SchoolSearchModal = ({ onClose, onSelect }: { onClose: () => void; onSelec
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
-        <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-amber-500 text-white">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[80vh] transition-colors" onClick={e => e.stopPropagation()}>
+        <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-amber-500 dark:bg-amber-700 text-white">
           <h3 className="font-bold text-lg">학교 검색</h3>
-          <button onClick={onClose} className="hover:bg-amber-600 rounded-full p-1 transition-colors">
+          <button onClick={onClose} className="hover:bg-amber-600 dark:hover:bg-amber-800 rounded-full p-1 transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
         
-        <div className="p-4 bg-gray-50 border-b border-gray-100">
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
           <div className="flex gap-2">
             <input 
               type="text" 
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && searchSchool()}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 outline-none"
+              className="flex-1 border border-gray-300 dark:border-gray-500 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 outline-none bg-white dark:bg-gray-600 text-gray-800 dark:text-white"
               placeholder="학교명을 입력하세요 (예: 경기고)"
               autoFocus
             />
             <button 
               onClick={searchSchool}
               disabled={loading}
-              className="bg-amber-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-amber-600 disabled:bg-gray-400 transition-colors whitespace-nowrap"
+              className="bg-amber-500 dark:bg-amber-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-amber-600 dark:hover:bg-amber-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 transition-colors whitespace-nowrap"
             >
               {loading ? '검색중' : '검색'}
             </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-2 min-h-[200px]">
+        <div className="flex-1 overflow-y-auto p-2 min-h-[200px] dark:text-gray-200">
           {error ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-2">
+            <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 space-y-2">
               <span className="text-2xl">⚠️</span>
               <p>{error}</p>
             </div>
@@ -666,16 +702,16 @@ const SchoolSearchModal = ({ onClose, onSelect }: { onClose: () => void; onSelec
                 <li key={idx}>
                   <button 
                     onClick={() => { onSelect(school); onClose(); }}
-                    className="w-full text-left p-3 rounded-lg hover:bg-amber-50 border border-transparent hover:border-amber-200 transition-all group"
+                    className="w-full text-left p-3 rounded-lg hover:bg-amber-50 dark:hover:bg-gray-700 border border-transparent hover:border-amber-200 dark:hover:border-gray-500 transition-all group"
                   >
-                    <div className="font-bold text-gray-800 group-hover:text-amber-700">{school.SCHUL_NM}</div>
-                    <div className="text-xs text-gray-500">{school.ORG_RDNMA}</div>
+                    <div className="font-bold text-gray-800 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400">{school.SCHUL_NM}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{school.ORG_RDNMA}</div>
                   </button>
                 </li>
               ))}
             </ul>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500">
               <span className="text-4xl mb-2">🏫</span>
               <p>학교 이름을 입력하고 검색해주세요.</p>
             </div>

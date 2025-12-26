@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>모두의 급식 - Everyones Lunch</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+      }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
       body {
@@ -15,8 +20,18 @@
         background: linear-gradient(135deg, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
         box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
       }
+      /* Dark mode Stainless steel effect */
+      .dark .stainless-steel {
+        background: linear-gradient(135deg, #4b5563 0%, #374151 50%, #1f2937 51%, #6b7280 100%);
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+      }
+
       .compartment-shadow {
         box-shadow: inset 4px 4px 8px rgba(0,0,0,0.2), inset -2px -2px 6px rgba(255,255,255,0.7);
+      }
+      /* Dark mode compartment shadow */
+      .dark .compartment-shadow {
+        box-shadow: inset 4px 4px 8px rgba(0,0,0,0.5), inset -2px -2px 6px rgba(255,255,255,0.05);
       }
     </style>
   <script type="importmap">
@@ -30,7 +45,7 @@
 }
 </script>
 </head>
-  <body class="bg-amber-100 text-gray-800">
+  <body class="bg-amber-100 text-gray-800 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100">
     <div id="root"></div>
   </body>
 </html>
