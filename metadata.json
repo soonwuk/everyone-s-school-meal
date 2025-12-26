@@ -1,0 +1,5 @@
+{
+  "name": "모두의 급식",
+  "description": "A Korean school lunch menu generator that visualizes daily menus on a realistic lunch tray with calorie information and AI-generated food images.",
+  "requestFramePermissions": []
+}
